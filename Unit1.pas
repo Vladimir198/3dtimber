@@ -39,8 +39,10 @@
           if FindFirst(derictoryPath+'\*.lprf', faAnyFile, sr)=0  then  //ищем  файлы Word  в каталоге
 
            repeat
-               Listbox1.Items.Add(sr.Name); //выводим список в ListBox
-            until FindNext(sr)<>0; //для проверки гита
+           if ListBox1.Items.Count>0 then
+           ListBox1.Items.Clear();
+           Listbox1.Items.Add(sr.Name); //выводим список в ListBox
+            until FindNext(sr)<>0;
 
             FindClose(sr);
     end;
