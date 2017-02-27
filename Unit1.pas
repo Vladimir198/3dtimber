@@ -4,13 +4,18 @@
 
   uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, FileCtrl;
+    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, FileCtrl, Vcl.Grids,
+  Vcl.ComCtrls, Data.DB, Vcl.DBGrids, UnitLog;
 
   type
     TForm1 = class(TForm)
       ListBox1: TListBox;
       Button1: TButton;
+    TabControl1: TTabControl;
+    DBGrid1: TDBGrid;
+    Edit1: TEdit;
       procedure Button1Click(Sender: TObject);
+    procedure ListBox1Click(Sender: TObject);
     private
       { Private declarations }
     public
@@ -19,19 +24,19 @@
 
   var
     Form1: TForm1;
-
+    derictoryPath: string;
+    log : TLog;
   implementation
 
   {$R *.dfm}
 
     procedure TForm1.Button1Click(Sender: TObject);
         var
-        path: String;
         sr: TSearchRec;
     begin
-          SelectDirectory('Выбор папки', '',path);
+          SelectDirectory('Выбор папки', '',derictoryPath);
 
-          if FindFirst(path+'\*.lprf', faAnyFile, sr)=0  then  //ищем  файлы Word  в каталоге
+          if FindFirst(derictoryPath+'\*.lprf', faAnyFile, sr)=0  then  //ищем  файлы Word  в каталоге
 
            repeat
                Listbox1.Items.Add(sr.Name); //выводим список в ListBox
@@ -39,6 +44,16 @@
 
             FindClose(sr);
     end;
+procedure TForm1.ListBox1Click(Sender: TObject);
+var
+path:string;
+begin
+    path := derictoryPath+'\'+ ListBox1.Items.Strings[ListBox1.ItemIndex];
+    log.Create(path);
+    Edit1.Text := log.version.ToString();
+
+end;
+
 end.
 
 
