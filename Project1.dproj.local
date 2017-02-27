@@ -1,9 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.442,C:\Avtomatika-Vektor\Delphi\3d timber\Project1.dproj=C:\Users\Operator\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.929,C:\Avtomatika-Vektor\Delphi\3d timber\Unit1.dfm=C:\Users\Operator\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
     <Transaction>1899.12.30 00:00:00.000.914,=C:\Users\Operator\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.929,C:\Users\Operator\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Avtomatika-Vektor\Delphi\3d timber\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.929,C:\Users\Operator\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Avtomatika-Vektor\Delphi\3d timber\Unit1.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.442,C:\Users\Operator\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Avtomatika-Vektor\Delphi\3d timber\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.929,C:\Avtomatika-Vektor\Delphi\3d timber\Unit1.pas=C:\Users\Operator\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2017.02.27 13:51:58.895,=C:\Avtomatika-Vektor\Delphi\3д бревно\3d timber\Unit2.pas</Transaction>
+    <Transaction>2017.02.27 13:52:16.622,C:\Avtomatika-Vektor\Delphi\3д бревно\3d timber\UnitLog.pas=C:\Avtomatika-Vektor\Delphi\3д бревно\3d timber\Unit2.pas</Transaction>
   </Transactions>
 </BorlandProject>

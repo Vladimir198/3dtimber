@@ -48,10 +48,10 @@ procedure TForm1.ListBox1Click(Sender: TObject);
 var
 path:string;
 begin
-if ListBox1.ItemIndex =>0  then
+if ListBox1.ItemIndex >=0  then
 begin
     path := derictoryPath+'\'+ ListBox1.Items.Strings[ListBox1.ItemIndex];
-    log.Create(path);
+    log := TLog.Create(path);
     Edit1.Text := log.version.ToString();
 end;
 
