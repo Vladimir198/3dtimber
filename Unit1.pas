@@ -35,7 +35,7 @@
 
            repeat
                Listbox1.Items.Add(sr.Name); //выводим список в ListBox
-            until FindNext(sr)<>0;
+            until FindNext(sr)<>0; //для проверки гита
 
             FindClose(sr);
     end;
