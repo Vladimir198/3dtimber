@@ -33,9 +33,6 @@ implementation
     DC: HDC;
     hrc: HGLRC;
     point, point1, point2, point3: TPointLog;
-
-    listPoints, listSections: TList;
-
     i, j, z, z2: Integer;
   begin
 
@@ -69,8 +66,7 @@ implementation
 
     glClear (GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
      i:=0;
-     listSections:= TList.Create();
-     listSections:= log.sections;
+
      for i:=0 to log.n-1 do
      begin
 

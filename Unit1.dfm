@@ -57,11 +57,15 @@ object Form1: TForm1
       Caption = #1057#1077#1095#1077#1085#1080#1103
       ImageIndex = 1
       ExplicitHeight = 151
+      DesignSize = (
+        665
+        142)
       object ListView1: TListView
         Left = 3
         Top = 3
-        Width = 260
+        Width = 270
         Height = 129
+        Anchors = [akLeft, akTop, akRight, akBottom]
         Columns = <
           item
             Caption = #1050#1086#1086#1088#1076#1080#1085#1072#1090#1072' z'
@@ -71,6 +75,24 @@ object Form1: TForm1
             Caption = #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086' '#1090#1086#1095#1077#1082
           end>
         TabOrder = 0
+        ViewStyle = vsReport
+        OnClick = ListView1Click
+      end
+      object ListView2: TListView
+        Left = 279
+        Top = 3
+        Width = 386
+        Height = 126
+        Anchors = [akTop, akRight, akBottom]
+        Columns = <
+          item
+            Caption = 'x'
+          end
+          item
+            Caption = 'y'
+          end>
+        TabOrder = 1
+        ViewStyle = vsReport
       end
     end
   end

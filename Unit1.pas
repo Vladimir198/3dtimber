@@ -18,14 +18,17 @@
     TabSheet2: TTabSheet;
     Memo1: TMemo;
     ListView1: TListView;
+    ListView2: TListView;
     procedure ListBox1Click(Sender: TObject);
     procedure N1Click(Sender: TObject);
+    procedure ListView1Click(Sender: TObject);
+
     private
       { Private declarations }
     public
       { Public declarations }
     end;
-
+    procedure SetListViewItemSection(items: TList; view : TListView);
   var
     Form1: TForm1;
     derictoryPath: string;
@@ -42,19 +45,42 @@
       begin
           path := derictoryPath+'\'+ ListBox1.Items.Strings[ListBox1.ItemIndex];
           log := TLog.Create(path);
+          SetListViewItemSection(log.sections, ListView1);
 
           if Memo1.Lines.Count>0 then
           begin
              Memo1.Lines.Clear();
           end;
+
           for s in  log.GetProertyList do
           begin
              Memo1.Lines.Add(s);
-             Create3DLog(log,Handle);
+
+             //Create3DLog(log,Handle);
           end;
 
       end;
     end;
+
+
+
+procedure TForm1.ListView1Click(Sender: TObject);
+var
+    i: Integer;
+    Item: TListItem;
+
+begin
+if ListView1.Selected.Index>=0 then
+begin
+    for i:=0 to TLogSection(log.sections[ListView1.Selected.Index]).points.Count-1 do
+      begin
+        Item := ListView2.Items.Add;
+        Item.Caption := TPointLog(TLogSection(log.sections[ListView1.Selected.Index]).points[i]).x.ToString();
+        Item.SubItems.Add(TPointLog(TLogSection(log.sections[ListView1.Selected.Index]).points[i]).y.ToString());
+      end;
+end;
+
+end;
 
 procedure TForm1.N1Click(Sender: TObject);
 var
@@ -69,8 +95,22 @@ var
       repeat
           Listbox1.Items.Add(sr.Name); //выводим список в ListBox
       until FindNext(sr)<>0;
+      FindClose(sr);
+    end;
 
-            FindClose(sr);
+    procedure SetListViewItemSection(items: TList; view : TListView);
+    var
+    i: Integer;
+    Item: TListItem;
+
+    begin
+      for i:=0 to items.Count-1 do
+      begin
+        Item := view.Items.Add;
+        Item.Caption := TLogSection(items[i]).z.ToString();
+        Item.SubItems.Add(TLogSection(items[i]).m.ToString());
+      end;
+
     end;
 
 end.
