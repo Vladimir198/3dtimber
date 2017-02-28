@@ -5,7 +5,8 @@
   uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
     Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.FileCtrl, Vcl.Grids,
-  Vcl.ComCtrls, Data.DB, Vcl.DBGrids, UnitLog, Vcl.Menus, Winapi.OpenGL;
+  Vcl.ComCtrls, Data.DB, Vcl.DBGrids, UnitLog, Vcl.Menus, Winapi.OpenGL, Unit3DLog,
+  Vcl.ExtCtrls;
 
   type
     TForm1 = class(TForm)
@@ -16,8 +17,7 @@
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     Memo1: TMemo;
-    DBGrid1: TDBGrid;
-    DBGrid2: TDBGrid;
+    ListView1: TListView;
     procedure ListBox1Click(Sender: TObject);
     procedure N1Click(Sender: TObject);
     private
@@ -36,10 +36,8 @@
     procedure TForm1.ListBox1Click(Sender: TObject);
     var
     path, s: string;
-    list: TStringList;
+
     begin
-      list:=TStringList.Create();
-      s:='';
       if ListBox1.ItemIndex >=0  then
       begin
           path := derictoryPath+'\'+ ListBox1.Items.Strings[ListBox1.ItemIndex];
@@ -49,9 +47,10 @@
           begin
              Memo1.Lines.Clear();
           end;
-          for s in  list do
+          for s in  log.GetProertyList do
           begin
              Memo1.Lines.Add(s);
+             Create3DLog(log,Handle);
           end;
 
       end;

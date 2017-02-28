@@ -2,7 +2,7 @@ unit UnitLog;
     
 interface
 uses
-    System.SysUtils, System.Variants, System.Classes;
+    System.SysUtils, System.Variants, System.Classes, Vcl.Dialogs, Winapi.OpenGL;
  type
 
  TPointLog = class
@@ -15,7 +15,7 @@ uses
  public
    z:Integer;
    m:Word;
-   points: array of TPointLog;
+   points: TList;
  end;
 
  TLog = class
@@ -27,9 +27,10 @@ uses
      Vf, impulsPrice: Single;
      curveDirection, sbeg, sbegCom: SmallInt;
      arrayReserv: array[0..83] of Byte;
-     sections: array of TLogSection;
-
+     sections: TList;
+     function GetProertyList(): TStringList;
      constructor Create(path: string);
+
 
  end;
 
@@ -41,10 +42,8 @@ implementation
    i, j, byteCounter: Integer;
    section: TLogSection;
    point: TPointLog;
-
-
    begin
-
+       try
        AssignFile(f, path);
        FileMode:= fmOpenRead;
        Reset(f,1);
@@ -92,17 +91,19 @@ implementation
          Seek(f,46 + i+1);
        end;
        byteCounter := 130;
+       sections:= TList.Create();
        for i:=0 to n-1 do
        begin
-        section := TLogSection.Create();
+         section := TLogSection.Create();
 
          BlockRead(f, section.z, 4);
          byteCounter:= byteCounter+4;
          Seek(f,byteCounter);
          BlockRead(f, section.m, 2);
          byteCounter:= byteCounter+2;
-
          Seek(f,byteCounter);
+         sections.Add(section);
+         TLogSection(sections[i]).points:= TList.Create();
          for j:=0 to section.m-1 do
          begin
            point := TPointLog.Create();
@@ -112,13 +113,43 @@ implementation
            BlockRead(f, point.y, 2);
            byteCounter:= byteCounter+2;
            Seek(f,byteCounter);
-            sections[i].points[j]:=point;
+           TLogSection(sections[i]).points.Add(point);
          end;
-         sections[i]:=section;
+
+
+       end;
+       CloseFile(f);
+       except
+       on E : Exception do
+       ShowMessage('Ошибка чтения файла! '+ E.Message);
        end;
 
-
-
-       CloseFile(f);
    end;
+
+  function TLog.GetProertyList(): TStringList;
+  var
+  propertyList: TStringList;
+  s: string;
+  begin
+   propertyList:= TStringList.Create();
+   s:= 'Индекс бревна: ' + Self.id.ToString();
+   propertyList.Add(s);
+   s:= 'Диаметр первого торца (мм): ' + Self.d1.ToString();
+   propertyList.Add(s);
+   s:= 'Диаметр середины бревна (мм): ' + Self.dCentr.ToString();
+   propertyList.Add(s);
+   s:= 'Диаметр второго торца (мм): ' + Self.d2.ToString();
+   propertyList.Add(s);
+   s:= 'Диаметр вершины торца (мм): ' + Self.dTop.ToString();
+   propertyList.Add(s);
+   s:= 'Длина бревна (см): ' + Self.lenghtLog.ToString();
+   propertyList.Add(s);
+   s:= 'Физический объем (м. куб): ' + Self.Vf.ToString();
+   propertyList.Add(s);
+   s:= 'Кривизна (%): ' + (Self.curve/10).ToString();
+   propertyList.Add(s);
+   Result:= propertyList;
+  end;
+
+
 end.
