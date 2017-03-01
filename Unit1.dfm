@@ -12,6 +12,9 @@ object Form1: TForm1
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
+  OnKeyDown = FormKeyDown
+  OnKeyPress = FormKeyPress
+  OnResize = FormResize
   DesignSize = (
     880
     505)
@@ -38,7 +41,6 @@ object Form1: TForm1
     TabOrder = 1
     object TabSheet1: TTabSheet
       Caption = #1064#1072#1087#1082#1072
-      ExplicitHeight = 151
       DesignSize = (
         665
         142)
@@ -56,7 +58,6 @@ object Form1: TForm1
     object TabSheet2: TTabSheet
       Caption = #1057#1077#1095#1077#1085#1080#1103
       ImageIndex = 1
-      ExplicitHeight = 151
       DesignSize = (
         665
         142)

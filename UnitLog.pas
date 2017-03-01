@@ -2,7 +2,7 @@ unit UnitLog;
     
 interface
 uses
-    System.SysUtils, System.Variants, System.Classes, Vcl.Dialogs, Winapi.OpenGL;
+    System.SysUtils, System.Variants, System.Classes, Vcl.Dialogs, System.Math, Winapi.OpenGL;
  type
 
  TPointLog = class
@@ -104,6 +104,7 @@ implementation
          Seek(f,byteCounter);
          sections.Add(section);
          TLogSection(sections[i]).points:= TList.Create();
+
          for j:=0 to section.m-1 do
          begin
            point := TPointLog.Create();
@@ -130,6 +131,7 @@ implementation
   var
   propertyList: TStringList;
   s: string;
+
   begin
    propertyList:= TStringList.Create();
    s:= 'Индекс бревна: ' + Self.id.ToString();
@@ -144,7 +146,7 @@ implementation
    propertyList.Add(s);
    s:= 'Длина бревна (см): ' + Self.lenghtLog.ToString();
    propertyList.Add(s);
-   s:= 'Физический объем (м. куб): ' + Self.Vf.ToString();
+   s:= 'Физический объем (м. куб): ' + roundto( Self.Vf,-3).ToString();
    propertyList.Add(s);
    s:= 'Кривизна (%): ' + (Self.curve/10).ToString();
    propertyList.Add(s);

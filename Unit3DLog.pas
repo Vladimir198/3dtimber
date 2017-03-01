@@ -2,41 +2,49 @@ unit Unit3DLog;
 
 interface
 uses
-Winapi.OpenGL, Winapi.Windows, Vcl.Dialogs, UnitLog, System.SysUtils, System.Variants, System.Classes;
-   procedure SetDCPixelFormat (hdc : HDC);
-   procedure Create3DLog(log: TLog; hendle: HWND );
+Winapi.OpenGL, Winapi.Windows, Vcl.Forms, Vcl.Dialogs, UnitLog, System.SysUtils, System.Variants, System.Classes;
 
 
-
+   procedure SetDCPixelFormat (dc : HDC);
+   procedure Rotated3DLog(angle: Double; log: TLog; form: TForm);
+   procedure Create3DLog(log: TLog; handle: HWND );
+   procedure Destroy3DLog();
+ var
+ H: THandle;
+ DC: HDC;
+ hrc: HGLRC;
 implementation
-   procedure SetDCPixelFormat (hdc : HDC);
-
-  var
-
-    pfd : TPixelFormatDescriptor;
-    nPixelFormat : Integer;
+   procedure SetDCPixelFormat(dc:HDC);
+    var pfd:TPixelFormatDescriptor;
+    nPixelFormat:Integer;
 
   begin
+    FillChar(pfd,SizeOf(pfd),0);
+    with pfd do
+     begin
+      nSize     := sizeof(pfd);
+      nVersion  := 1;
+      dwFlags   := PFD_DRAW_TO_WINDOW or
+                   PFD_SUPPORT_OPENGL or
+                   PFD_DOUBLEBUFFER;
+      iPixelType:= PFD_TYPE_RGBA;
+      cColorBits:= 16;
+      cDepthBits:= 64;
+      iLayerType:= PFD_MAIN_PLANE;
+     end;
 
-    FillChar (pfd, SizeOf (pfd), 0);
-
-    pfd.dwFlags :=PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER;
-
-    nPixelFormat :=ChoosePixelFormat (hdc, @pfd);
-
-    SetPixelFormat(hdc, nPixelFormat, @pfd);
-
+    nPixelFormat:=ChoosePixelFormat(DC,@pfd);
+    SetPixelFormat(DC,nPixelFormat,@pfd);
   end;
 
-  procedure Create3DLog(log: TLog; hendle: HWND );
+  procedure Create3DLog(log: TLog; handle: HWND );
     var
-    DC: HDC;
-    hrc: HGLRC;
     point, point1, point2, point3: TPointLog;
     i, j, z, z2: Integer;
   begin
-
-    DC:= GetDC(hendle);
+    Destroy3DLog();
+    H:= handle;
+    DC:= GetDC(handle);
 
     SetDCPixelFormat(DC);
 
@@ -44,19 +52,20 @@ implementation
 
     wglMakeCurrent(DC, hrc);
 
-    glClearColor (0.5, 0.5, 0.7, 1.0);
+    glClearColor (0.4, 0.7, 0.7, 1.0);
 
     glMatrixMode (GL_PROJECTION);
 
     glLoadIdentity;
 
-    glFrustum (-1, 1, -1, 1, 2, 20);
+    glFrustum (-3000, 3000, -3000, 3000, 2, 300);
 
     glMatrixMode (GL_MODELVIEW);
 
     glLoadIdentity;
 
-    glTranslatef(0.0, 0.0, -6.0);
+    //glTranslatef(0.0, 0.0, -6.0);
+    glTranslated(0,0,-5);
 
     glEnable (GL_LIGHTING);
 
@@ -65,8 +74,8 @@ implementation
     glEnable (GL_DEPTH_TEST);
 
     glClear (GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
-     i:=0;
 
+     //glRotated(45,0.1,1.0,0.0);
      for i:=0 to log.n-1 do
      begin
 
@@ -97,12 +106,30 @@ implementation
               glEnd;
             end;
          end;
+        //
 
 
      end;
-    SwapBuffers(DC);
+      //glRotatef(30.0,0.0,1.0,0.0);
 
-    InvalidateRect(hendle, nil, False);
+      SwapBuffers(DC);
+
+      InvalidateRect(handle, nil, False);
   end;
 
+  procedure Destroy3DLog();
+
+  begin
+    wglMakeCurrent(0,0);
+    wglDeleteContext(hrc);
+    ReleaseDC(H,DC);
+    DeleteDC(DC);
+  end;
+
+  procedure Rotated3DLog(angle: Double; log: TLog; form: TForm);
+
+  begin
+     glRotatef(angle,0,0,1);
+     Create3DLog(log,form.Handle);
+  end;
 end.
