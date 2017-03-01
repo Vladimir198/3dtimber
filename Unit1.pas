@@ -10,7 +10,7 @@
 
   type
     TForm1 = class(TForm)
-      ListBox1: TListBox;
+    ListBox1: TListBox;
     MainMenu1: TMainMenu;
     N1: TMenuItem;
     PageControl1: TPageControl;
@@ -23,8 +23,6 @@
     procedure N1Click(Sender: TObject);
     procedure ListView1Click(Sender: TObject);
     procedure FormResize(Sender: TObject);
-    procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
     private
       { Private declarations }
@@ -39,41 +37,12 @@
   implementation
 
   {$R *.dfm}
-    procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-    var
-        angle:Double;
-    begin
-          FormResize(Sender); //процедура обновления
 
-         if GetAsyncKeyState(VK_LEFT)<>0 then angle:=angle+0.5;
-         if GetAsyncKeyState(VK_RIGHT)<>0 then angle:=angle-0.5;
-         Rotated3DLog(angle, log, Form1);
-    end;
-
-procedure TForm1.FormKeyPress(Sender: TObject; var Key: Char);
-    var
-    angle:Double;
+  procedure TForm1.FormResize(Sender: TObject);
 begin
-      FormResize(Sender); //процедура обновления
+  ResizeForm(ClientWidth,ClientHeight);
 
-     if GetAsyncKeyState(VK_LEFT)<>0 then angle:=angle+0.5;
-     if GetAsyncKeyState(VK_RIGHT)<>0 then angle:=angle-0.5;
-     Rotated3DLog(angle, log, Form1);
 end;
-
-procedure TForm1.FormResize(Sender: TObject);
-    begin
-      glViewport(0, 0, ClientWidth, ClientHeight); //выделяем область куда будет выводиться наш буфер
-      glMatrixMode ( GL_PROJECTION ); //переходим в матрицу проекции
-      glLoadIdentity;  //Сбрасываем текущую матрицу
-      glFrustum ( -1 , 1 , -1 , 1 , 1.25 , 100.0 ); //Область видимости
-      glMatrixMode ( GL_MODELVIEW ); //переходим в модельную матрицу
-      glLoadIdentity;//Сбрасываем текущую матрицу
-      gluLookAt(5,5,5,0,0,0,0,0,1);  //позиция наблюдателя
-      InvalidateRect ( Handle,nil,False );  //перерисовка формы
-
-    end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
     var
@@ -97,8 +66,8 @@ procedure TForm1.ListBox1Click(Sender: TObject);
           for s in  log.GetProertyList do
           begin
              Memo1.Lines.Add(s);
-
-             Create3DLog(log, Handle);
+             SetOpenGL(Handle);
+             Create3DLog(log);
           end;
 
       end;
@@ -106,28 +75,28 @@ procedure TForm1.ListBox1Click(Sender: TObject);
 
 
 
-procedure TForm1.ListView1Click(Sender: TObject);
-var
-    i: Integer;
-    Item: TListItem;
-begin
-  try
-      if ListView2.Items.Count>0 then
-      begin
-        ListView2.Items.Clear();
-      end;
-      for i:=0 to TLogSection(log.sections[ListView1.Selected.Index]).points.Count-1 do
-      begin
-          Item := ListView2.Items.Add;
-          Item.Caption := TPointLog(TLogSection(log.sections[ListView1.Selected.Index]).points[i]).x.ToString();
-          Item.SubItems.Add(TPointLog(TLogSection(log.sections[ListView1.Selected.Index]).points[i]).y.ToString());
-      end;
-  except
+  procedure TForm1.ListView1Click(Sender: TObject);
+  var
+      i: Integer;
+      Item: TListItem;
+  begin
+    try
+        if ListView2.Items.Count>0 then
+        begin
+          ListView2.Items.Clear();
+        end;
+        for i:=0 to TLogSection(log.sections[ListView1.Selected.Index]).points.Count-1 do
+        begin
+            Item := ListView2.Items.Add;
+            Item.Caption := TPointLog(TLogSection(log.sections[ListView1.Selected.Index]).points[i]).x.ToString();
+            Item.SubItems.Add(TPointLog(TLogSection(log.sections[ListView1.Selected.Index]).points[i]).y.ToString());
+        end;
+    except
+    end;
   end;
-end;
 
-procedure TForm1.N1Click(Sender: TObject);
-var
+  procedure TForm1.N1Click(Sender: TObject);
+  var
         sr: TSearchRec;
     begin
       SelectDirectory('Выбор папки', '',derictoryPath);

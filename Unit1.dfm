@@ -12,8 +12,6 @@ object Form1: TForm1
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
-  OnKeyDown = FormKeyDown
-  OnKeyPress = FormKeyPress
   OnResize = FormResize
   DesignSize = (
     880

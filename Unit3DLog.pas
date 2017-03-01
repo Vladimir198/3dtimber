@@ -6,15 +6,19 @@ Winapi.OpenGL, Winapi.Windows, Vcl.Forms, Vcl.Dialogs, UnitLog, System.SysUtils,
 
 
    procedure SetDCPixelFormat (dc : HDC);
-   procedure Rotated3DLog(angle: Double; log: TLog; form: TForm);
-   procedure Create3DLog(log: TLog; handle: HWND );
+   procedure SetOpenGL(handle: HWND);
+   procedure Rotated3DLog(angle: Double);
+   procedure Create3DLog(log: TLog);
    procedure Destroy3DLog();
+   procedure ResizeForm (Width: Integer; Height: Integer);
  var
  H: THandle;
  DC: HDC;
  hrc: HGLRC;
 implementation
+
    procedure SetDCPixelFormat(dc:HDC);
+
     var pfd:TPixelFormatDescriptor;
     nPixelFormat:Integer;
 
@@ -37,28 +41,29 @@ implementation
     SetPixelFormat(DC,nPixelFormat,@pfd);
   end;
 
-  procedure Create3DLog(log: TLog; handle: HWND );
+  procedure SetOpenGL(handle: HWND);
+  begin
+    H:= handle;
+    DC:= GetDC(handle);
+    SetDCPixelFormat(DC);
+    hrc := wglCreateContext(DC);
+    wglMakeCurrent(DC, hrc);
+    glShadeModel(GL_SMOOTH);
+    glViewport(0, 0, 500, 500);
+  end;
+
+  procedure Create3DLog(log: TLog );
     var
     point, point1, point2, point3: TPointLog;
     i, j, z, z2: Integer;
   begin
-    Destroy3DLog();
-    H:= handle;
-    DC:= GetDC(handle);
-
-    SetDCPixelFormat(DC);
-
-    hrc := wglCreateContext(DC);
-
-    wglMakeCurrent(DC, hrc);
-
     glClearColor (0.4, 0.7, 0.7, 1.0);
 
     glMatrixMode (GL_PROJECTION);
 
     glLoadIdentity;
 
-    glFrustum (-3000, 3000, -3000, 3000, 2, 300);
+    glFrustum (-3000, 3000, -3000, 3000, 3, 3000);
 
     glMatrixMode (GL_MODELVIEW);
 
@@ -74,20 +79,20 @@ implementation
     glEnable (GL_DEPTH_TEST);
 
     glClear (GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
-
-     //glRotated(45,0.1,1.0,0.0);
-     for i:=0 to log.n-1 do
+      glRotatef(45.0,0,1,0);
+      glRotatef(45.0,1,0,0);
+     //gluLookAt(500,500,500,0,0,1500,1,0,0);
+     for i:=0 to log.n-2 do
      begin
 
      z:=TLogSection(log.sections[i]).z;
-     if i < log.n-1 then
+
      z2 := TLogSection(log.sections[i+1]).z;
 
 
-         for j:=0 to TLogSection(log.sections[i]).m-1 do
+         for j:=0 to TLogSection(log.sections[i]).m-2 do
          begin
-           if( (j < TLogSection(log.sections[i]).m-1) and (i < log.n-1)) then
-           begin
+
               point := TPointLog(TLogSection(log.sections[i]).points[j]);
               point1 := TPointLog(TLogSection(log.sections[i+1]).points[j]);
               point2 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
@@ -104,17 +109,18 @@ implementation
               glVertex3i(point1.x, point1.y, z2);
               glVertex3i(point3.x, point3.y, z);
               glEnd;
-            end;
+
          end;
-        //
+
 
 
      end;
       //glRotatef(30.0,0.0,1.0,0.0);
 
+
       SwapBuffers(DC);
 
-      InvalidateRect(handle, nil, False);
+      InvalidateRect(H, nil, False);
   end;
 
   procedure Destroy3DLog();
@@ -126,10 +132,22 @@ implementation
     DeleteDC(DC);
   end;
 
-  procedure Rotated3DLog(angle: Double; log: TLog; form: TForm);
+  procedure Rotated3DLog(angle: Double);
 
   begin
      glRotatef(angle,0,0,1);
-     Create3DLog(log,form.Handle);
+     InvalidateRect ( H,nil,False );
+  end;
+
+  procedure ResizeForm (Width: Integer; Height: Integer);
+  begin
+    glViewport(0, 0, 500, 500); //выделяем область куда будет выводиться наш буфер
+    glMatrixMode ( GL_PROJECTION ); //переходим в матрицу проекции
+    glLoadIdentity;  //Сбрасываем текущую матрицу
+    glFrustum ( -1 , 1 , -1 , 1 , 1.25 , 100.0 ); //Область видимости
+    glMatrixMode ( GL_MODELVIEW ); //переходим в модельную матрицу
+    glLoadIdentity;//Сбрасываем текущую матрицу
+    //gluLookAt(5,5,5,0,0,0,0,0,1);  //позиция наблюдателя
+    InvalidateRect ( H,nil,False );  //перерисовка формы
   end;
 end.
