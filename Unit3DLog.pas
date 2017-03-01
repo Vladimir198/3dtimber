@@ -49,7 +49,7 @@ implementation
     hrc := wglCreateContext(DC);
     wglMakeCurrent(DC, hrc);
     glShadeModel(GL_SMOOTH);
-    glViewport(0, 0, 500, 500);
+    //glViewport(0, 0, 500, 500);
   end;
 
   procedure Create3DLog(log: TLog );
@@ -57,19 +57,18 @@ implementation
     point, point1, point2, point3: TPointLog;
     i, j, z, z2: Integer;
   begin
-    glClearColor (0.4, 0.7, 0.7, 1.0);
+    glClearColor (0.4, 0.8, 0.8, 1.0);
 
     glMatrixMode (GL_PROJECTION);
 
     glLoadIdentity;
 
-    glFrustum (-3000, 3000, -3000, 3000, 3, 3000);
+    glFrustum (-3000, 3000, -3000, 3000, 30, 300);
 
     glMatrixMode (GL_MODELVIEW);
 
     glLoadIdentity;
 
-    //glTranslatef(0.0, 0.0, -6.0);
     glTranslated(0,0,-5);
 
     glEnable (GL_LIGHTING);
@@ -79,9 +78,8 @@ implementation
     glEnable (GL_DEPTH_TEST);
 
     glClear (GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
-      glRotatef(45.0,0,1,0);
-      glRotatef(45.0,1,0,0);
-     //gluLookAt(500,500,500,0,0,1500,1,0,0);
+     gluLookAt(6000,6000,6000,0,0,3000,0,0,1);
+     glRotatef(15,0,1,0);
      for i:=0 to log.n-2 do
      begin
 
@@ -92,35 +90,41 @@ implementation
 
          for j:=0 to TLogSection(log.sections[i]).m-2 do
          begin
+              if j = TLogSection(log.sections[i]).m-2 then
+              begin
+                point := TPointLog(TLogSection(log.sections[i]).points[j+1]);
+                point1 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
+                point2 := TPointLog(TLogSection(log.sections[i+1]).points[0]);
+                point3 := TPointLog(TLogSection(log.sections[i]).points[0]);
 
-              point := TPointLog(TLogSection(log.sections[i]).points[j]);
-              point1 := TPointLog(TLogSection(log.sections[i+1]).points[j]);
-              point2 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
-              point3 := TPointLog(TLogSection(log.sections[i]).points[j+1]);
+                glBegin(GL_QUADS);
+                glVertex3i(point.x, point.y, z);
+                glVertex3i(point1.x, point1.y, z2);
+                glVertex3i(point2.x, point2.y, z2);
+                glVertex3i(point3.x, point3.y, z);
+                glEnd;
+              end;
 
-              glBegin(GL_TRIANGLES);
+                point := TPointLog(TLogSection(log.sections[i]).points[j]);
+                point1 := TPointLog(TLogSection(log.sections[i+1]).points[j]);
+                point2 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
+                point3 := TPointLog(TLogSection(log.sections[i]).points[j+1]);
+
+              
+
+              glBegin(GL_QUADS);
               glVertex3i(point.x, point.y, z);
               glVertex3i(point1.x, point1.y, z2);
               glVertex3i(point2.x, point2.y, z2);
-              glEnd;
-
-              glBegin(GL_TRIANGLES);
-              glVertex3i(point.x, point.y, z);
-              glVertex3i(point1.x, point1.y, z2);
               glVertex3i(point3.x, point3.y, z);
               glEnd;
-
-         end;
+          end;
 
 
 
      end;
-      //glRotatef(30.0,0.0,1.0,0.0);
-
-
       SwapBuffers(DC);
 
-      InvalidateRect(H, nil, False);
   end;
 
   procedure Destroy3DLog();
@@ -147,7 +151,7 @@ implementation
     glFrustum ( -1 , 1 , -1 , 1 , 1.25 , 100.0 ); //Область видимости
     glMatrixMode ( GL_MODELVIEW ); //переходим в модельную матрицу
     glLoadIdentity;//Сбрасываем текущую матрицу
-    //gluLookAt(5,5,5,0,0,0,0,0,1);  //позиция наблюдателя
+    gluLookAt(5000,5000,5000,0,0,0,0,0,1);  //позиция наблюдателя
     InvalidateRect ( H,nil,False );  //перерисовка формы
   end;
 end.

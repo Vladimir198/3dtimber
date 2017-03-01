@@ -34,17 +34,28 @@
     Form1: TForm1;
     derictoryPath: string;
     log : TLog;
+    HRC : HGLRC ;
+    angle: single;
   implementation
 
   {$R *.dfm}
+  procedure SetDCPixelFormat ( hdc : HDC );
+     var
+      pfd : TPixelFormatDescriptor;
+      nPixelFormat : Integer;
+     begin
+      FillChar (pfd, SizeOf (pfd), 0);
+      pfd.dwFlags  := PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER;
+      nPixelFormat := ChoosePixelFormat (hdc, @pfd);
+      SetPixelFormat (hdc, nPixelFormat, @pfd);
+     end;
 
   procedure TForm1.FormResize(Sender: TObject);
-begin
-  ResizeForm(ClientWidth,ClientHeight);
+    begin
+      ResizeForm(ClientWidth,ClientHeight);
+    end;
 
-end;
-
-procedure TForm1.ListBox1Click(Sender: TObject);
+  procedure TForm1.ListBox1Click(Sender: TObject);
     var
     path, s: string;
 
@@ -72,8 +83,6 @@ procedure TForm1.ListBox1Click(Sender: TObject);
 
       end;
     end;
-
-
 
   procedure TForm1.ListView1Click(Sender: TObject);
   var
@@ -111,7 +120,7 @@ procedure TForm1.ListBox1Click(Sender: TObject);
       FindClose(sr);
     end;
 
-    procedure SetListViewItemSection(items: TList; view : TListView);
+  procedure SetListViewItemSection(items: TList; view : TListView);
     var
     i: Integer;
     Item: TListItem;
