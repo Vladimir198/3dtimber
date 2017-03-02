@@ -25,7 +25,7 @@ uses
      date: TDateTime;
      curve, reserv: Byte;
      Vf, impulsPrice: Single;
-     curveDirection, sbeg, sbegCom: SmallInt;
+     curveDirection, sbeg, sbegCom, maxX, maxY, maxZ, minX, minY, minZ: SmallInt;
      arrayReserv: array[0..83] of Byte;
      sections: TList;
      function GetProertyList(): TStringList;
@@ -85,6 +85,7 @@ implementation
        BlockRead(f, impulsPrice, 4);
        Seek(f,46);
 
+
        for i:=0 to 83 do
        begin
          BlockRead(f, arrayReserv[i], 1);
@@ -104,9 +105,16 @@ implementation
          Seek(f,byteCounter);
          sections.Add(section);
          TLogSection(sections[i]).points:= TList.Create();
-
+         if i=0 then
+         begin
+           maxZ := section.z;
+           minZ := section.z;
+         end;
+         minZ := Min(minZ, section.z);
+         maxZ := Max( section.z, maxZ);
          for j:=0 to section.m-1 do
          begin
+
            point := TPointLog.Create();
            BlockRead(f, point.x, 2);
            byteCounter:= byteCounter+2;
@@ -115,6 +123,20 @@ implementation
            byteCounter:= byteCounter+2;
            Seek(f,byteCounter);
            TLogSection(sections[i]).points.Add(point);
+
+           if j=0 then
+           begin
+             maxX := point.x;
+             minX := point.x;
+             maxY := point.y;
+             minY := point.y;
+            end;
+
+           minX := Min(minX, point.x);
+           maxX := Max(point.x, maxX);
+           minY := Min(minY, point.y);
+           maxY := Max(point.y, maxY);
+
          end;
 
 
