@@ -18,6 +18,7 @@ object Form1: TForm1
   OnMouseUp = FormMouseUp
   OnMouseWheelDown = FormMouseWheelDown
   OnMouseWheelUp = FormMouseWheelUp
+  OnPaint = FormPaint
   OnResize = FormResize
   DesignSize = (
     880
@@ -28,7 +29,7 @@ object Form1: TForm1
     Left = 8
     Top = 0
     Width = 185
-    Height = 515
+    Height = 504
     Anchors = [akLeft, akTop, akBottom]
     ItemHeight = 13
     TabOrder = 0
@@ -100,6 +101,46 @@ object Form1: TForm1
         ViewStyle = vsReport
       end
     end
+  end
+  object btnOrto: TButton
+    Left = 831
+    Top = 344
+    Width = 41
+    Height = 25
+    Anchors = [akRight, akBottom]
+    Caption = #1054#1088#1090#1086
+    TabOrder = 2
+    OnClick = btnOrtoClick
+  end
+  object btnPerspec: TButton
+    Left = 742
+    Top = 344
+    Width = 83
+    Height = 25
+    Anchors = [akRight, akBottom]
+    Caption = #1055#1077#1088#1089#1087#1077#1082#1090#1080#1074#1072
+    TabOrder = 3
+    OnClick = btnPerspecClick
+  end
+  object btnFill: TButton
+    Left = 653
+    Top = 344
+    Width = 75
+    Height = 25
+    Anchors = [akRight, akBottom]
+    Caption = #1047#1072#1087#1086#1083#1085#1077#1085
+    TabOrder = 4
+    OnClick = btnFillClick
+  end
+  object btnLine: TButton
+    Left = 572
+    Top = 344
+    Width = 75
+    Height = 25
+    Anchors = [akRight, akBottom]
+    Caption = #1057#1077#1090#1082#1072
+    TabOrder = 5
+    OnClick = btnLineClick
   end
   object MainMenu1: TMainMenu
     Left = 8

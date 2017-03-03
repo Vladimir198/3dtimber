@@ -21,11 +21,11 @@ uses
  TLog = class
      public
      version, pointInSection, id, d1, dCentr, d2, dTop, lenghtLog, flag: Word;
-     n: Integer;
+     n, minZ, maxZ: Integer;
      date: TDateTime;
      curve, reserv: Byte;
      Vf, impulsPrice: Single;
-     curveDirection, sbeg, sbegCom, maxX, maxY, maxZ, minX, minY, minZ: SmallInt;
+     curveDirection, sbeg, sbegCom, maxX, maxY, minX, minY : SmallInt;
      arrayReserv: array[0..83] of Byte;
      sections: TList;
      function GetProertyList(): TStringList;
