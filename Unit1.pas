@@ -19,8 +19,6 @@
     Memo1: TMemo;
     ListView1: TListView;
     ListView2: TListView;
-    btnOrto: TButton;
-    btnPerspec: TButton;
     btnFill: TButton;
     btnLine: TButton;
     procedure ListBox1Click(Sender: TObject);
@@ -39,8 +37,6 @@
       MousePos: TPoint; var Handled: Boolean);
     procedure btnLineClick(Sender: TObject);
     procedure btnFillClick(Sender: TObject);
-    procedure btnPerspecClick(Sender: TObject);
-    procedure btnOrtoClick(Sender: TObject);
     procedure FormPaint(Sender: TObject);
 
 
@@ -56,7 +52,7 @@
     derictoryPath: string;
     log : TLog;
     mouse: TPoint;
-    angleX, angleY: Integer;
+    x1, y1: Integer;
     rotateTriger: Boolean;
   implementation
 
@@ -71,16 +67,6 @@ end;
 procedure TForm1.btnLineClick(Sender: TObject);
 begin
 SetLineMode();
-end;
-
-procedure TForm1.btnOrtoClick(Sender: TObject);
-begin
-SetOrto();
-end;
-
-procedure TForm1.btnPerspecClick(Sender: TObject);
-begin
- SetPerspektiva();
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -99,16 +85,30 @@ end;
 
 procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
-   var
-   x1 : Integer;
+
+
 begin
 
   if rotateTriger then
   begin
-      RotateLog(3);
-      FormResizeGL(ClientWidth, ClientHeight);
-      if not (log=nil) then
- CreateLog3DGL(log);
+      if X > x1 then
+      begin
+      if Y>y1 then
+       RotateLog(2,2)
+       else
+        RotateLog(2,-2)
+      end
+       else
+       begin
+       if Y>y1 then
+          RotateLog(-2,2)
+          else
+          RotateLog(-2,-2);
+       end;
+       y1:=Y;
+       x1:=X;
+
+      Form1.FormResize(nil);
   end;
 
 end;
@@ -122,15 +122,15 @@ end;
 procedure TForm1.FormMouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
- Zumm(-1);
- FormResizeGL(ClientWidth, ClientHeight);
+ Zumm(-200);
+ Form1.FormResize(nil);
 end;
 
 procedure TForm1.FormMouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
- Zumm(1);
- FormResizeGL(ClientWidth, ClientHeight);
+ Zumm(200);
+ Form1.FormResize(nil);
 end;
 
 procedure TForm1.FormPaint(Sender: TObject);
@@ -143,7 +143,9 @@ procedure TForm1.FormResize(Sender: TObject);
 begin
 if not(log = nil) then
 begin
-  FormResizeGL(ClientWidth, ClientHeight);
+  FormResizeGL(ClientWidth - PageControl1.Left, ClientHeight- PageControl1.Height , PageControl1.Left, ClientHeight - PageControl1.Top);
+  Form1.FormPaint(nil);
+  Form1.Color := cl3DLight;
 end;
 
 end;
@@ -171,9 +173,9 @@ procedure TForm1.ListBox1Click(Sender: TObject);
           begin
              Memo1.Lines.Add(s);
           end;
-          //FormResizeGL(GroupBox1.Width, GroupBox1.Height);
-          CreateLog3DGL(log);
-          FormResizeGL(ClientWidth, ClientHeight);
+
+          Form1.FormResize(nil);
+
       end;
     end;
 

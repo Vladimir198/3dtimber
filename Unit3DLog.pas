@@ -8,12 +8,10 @@ System.Variants, System.Classes;
 
   procedure SetPropertyGL(handle : HWND; BGCRed, BGCGreen, BGCBlue, BGCAlpha : Single);
   procedure DestroyGL();
-  procedure RotateLog(multiplier: Integer);
+  procedure RotateLog(multiplierX, multiplierY: Integer);
   procedure CreateLog3DGL(log : TLog);
-  procedure FormResizeGL(Width, Height : Integer);
+  procedure FormResizeGL(Width, Height,  xLeft1, yTop1 : Integer);
   procedure Zumm(multiplier : Integer);
-  procedure SetOrto();
-  procedure SetPerspektiva();
   procedure SetLineMode();
   procedure SetFillMode();
 
@@ -23,7 +21,7 @@ var
  DC: HDC;
  hrc: HGLRC;
  vLeft, vRight, vBottom, vTop, vNear, vFar, HWidth, HHeight, zumm1: Integer;
- angle : Double;
+ angleX, angleY : Double;
  viewTriger : (Perspectiva,Orto) = Perspectiva;
  implementation
    procedure SetDCPixcelFormat (hdc: HDC);
@@ -39,8 +37,7 @@ var
 
    procedure SetPropertyGL(handle : HWND; BGCRed, BGCGreen, BGCBlue, BGCAlpha : Single);
    begin
-     zumm1:=60;
-     angle := 90;
+     zumm1:=16000;
      H := handle;
      DC := GetDC(H);
      SetDCPixcelFormat(DC);
@@ -52,12 +49,15 @@ var
      vRight := 20000;
      vTop := 7000;
      vBottom := -7000;
-     vNear :=2100;
-     vFar := 47000;
+     vNear :=0;
+     vFar := 60000;
      glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-     //glEnable (GL_DEPTH_TEST);
      glEnable (GL_LIGHTING);
      glEnable(GL_LIGHT0);
+     glEnable(GL_LIGHT1);
+     glEnable(GL_SCISSOR_TEST);
+     glEnable(GL_COLOR_MATERIAL);
+
    end;
 
    procedure DestroyGL();
@@ -70,19 +70,13 @@ var
 
    procedure Zumm(multiplier : Integer);
    begin
-      vLeft := vLeft -  multiplier*200;
-      vRight := vRight + multiplier*200;
-      vTop := vTop + multiplier*200;
-      vBottom := vBottom - multiplier*200;
-        zumm1 := zumm1 + multiplier;
+      zumm1 := zumm1 + multiplier;
    end;
 
-  procedure RotateLog(multiplier: Integer);
+  procedure RotateLog(multiplierX, multiplierY: Integer);
   begin
-      glLoadIdentity;
-      angle := angle + multiplier;
-      glRotated(angle, 0.0, 1.0,0.0); //поворот объекта - ось Y
-      InvalidateRect(H, nil, False);
+      angleX := angleX + multiplierX;
+      angleY := angleY + multiplierY;
   end;
 
   procedure SetLineMode();
@@ -95,34 +89,10 @@ var
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
   end;
 
-  procedure SetPerspektiva();
-  begin
-    viewTriger :=Perspectiva;
-    glLoadIdentity;
-    gluPerspective(zumm1,           // угол видимости в направлении оси Y
-                HWidth / HHeight, // угол видимости в направлении оси X
-                2100,            // расстояние от наблюдателя до ближней плоскости отсечения
-                47000);
-    //glFrustum(vLeft, vRight, vBottom, vTop, vNear, vFar); // задаем перспективу
-    glTranslatef(0.0, 0.0, -9000.0);   // перенос объекта - ось Z
-    glRotated(angle, 0.0, 1.0,0.0);
-    InvalidateRect(H, nil, False);
-  end;
-
-   procedure SetOrto();
-   begin
-    viewTriger :=Orto;
-    glLoadIdentity;
-    glOrtho(vLeft, vRight, vBottom, vTop, vNear, vFar); // задаем перспективу
-    glTranslatef(0.0, 0.0, -9000.0);   // перенос объекта - ось Z
-    glRotated(angle, 0.0, 1.0,0.0);
-    InvalidateRect(H, nil, False);
-   end;
-
   procedure CreateLog3DGL(log : TLog);
   var
   point, point1, point2, point3: TPointLog;
-  i, j, z, z2, a: Integer;
+  i, j, z, z2, a, xN, yN, zN: Integer;
   begin
     glClear (GL_COLOR_BUFFER_BIT);
     for i:=0 to log.n-2 do
@@ -139,9 +109,12 @@ var
             point1 := TPointLog(TLogSection(log.sections[i+1]).points[j]);
             point2 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
             point3 := TPointLog(TLogSection(log.sections[i]).points[j+1]);
-
+             xN := point.y*(z2-z2) + point1.y*(z2-z) + point2.y*(z-z2);
+             yN := z*(point1.x - point2.x) + z2*(point2.x-point.x) + z2*(point.x-point1.x);
+             zN := point.x*(point1.y - point2.y) + point1.x*(point2.y-point.y) + point2.x*(point.y-point1.y);
             glBegin(GL_QUADS);
             glColor3f(0.7,0.7,0.4);
+            glNormal3i(xN,yN,zN);
             glVertex3i(point.x, point.y, z);
             glVertex3i(point1.x, point1.y, z2);
             glVertex3i(point2.x, point2.y, z2);
@@ -154,9 +127,12 @@ var
               point1 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
               point2 := TPointLog(TLogSection(log.sections[i+1]).points[0]);
               point3 := TPointLog(TLogSection(log.sections[i]).points[0]);
-
+              xN := point.y*(z2-z2) + point1.y*(z2-z) + point2.y*(z-z2);
+              yN := z*(point1.x - point2.x) + z2*(point2.x-point.x) + z2*(point.x-point1.x);
+              zN := point.x*(point1.y - point2.y) + point1.x*(point2.y-point.y) + point2.x*(point.y-point1.y);
               glBegin(GL_QUADS);
               glColor3f(0.7,0.7,0.4);
+              glNormal3i(xN,yN,zN);
               glVertex3i(point.x, point.y, z);
               glVertex3i(point1.x, point1.y, z2);
               glVertex3i(point2.x, point2.y, z2);
@@ -169,21 +145,23 @@ var
      SwapBuffers(DC);
   end;
 
-  procedure FormResizeGL(Width, Height : Integer);
+  procedure FormResizeGL(Width, Height,  xLeft1, yTop1 : Integer);
   begin
     HWidth := Width;
     HHeight := Height;
-    glViewport(0, 0, Width, Height);
+    glViewport(xLeft1, yTop1, Width, Height);
+    glScissor(xLeft1, yTop1, Width, Height);
     glLoadIdentity;
-    case viewTriger of
-     Perspectiva : gluPerspective(zumm1,           // угол видимости в направлении оси Y
+    gluPerspective(30,           // угол видимости в направлении оси Y
                 Width / Height, // угол видимости в направлении оси X
-                3100,            // расстояние от наблюдателя до ближней плоскости отсечения
-                47000);
-     Orto : glOrtho(vLeft, vRight, vBottom, vTop, vNear, vFar);
-     end; // задаем перспективу
+                0,            // расстояние от наблюдателя до ближней плоскости отсечения
+                60000);
+
+    if zumm1 >0 then
+    gluLookAt (0, zumm1+3000, zumm1*2, 0.0, 0.0, 0.0, 0, 1, 0);
     glTranslatef(0.0, 0.0, -9000.0);   // перенос объекта - ось Z
-    glRotated(angle, 0.0, 1.0,0.0);
+    glRotated(angleX, 0.0, 1.0,0.0);
+    //glRotated(angleY, 1.0, 0.0,0.0);
     InvalidateRect(H, nil, False);
   end;
 end.
