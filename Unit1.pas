@@ -86,30 +86,16 @@ end;
 procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 
-
 begin
 
-  if rotateTriger then
-  begin
-      if X > x1 then
-      begin
-      if Y>y1 then
-       RotateLog(2,2)
-       else
-        RotateLog(2,-2)
-      end
-       else
-       begin
-       if Y>y1 then
-          RotateLog(-2,2)
-          else
-          RotateLog(-2,-2);
-       end;
-       y1:=Y;
-       x1:=X;
+    if rotateTriger then
+    begin
+          RotateLog(x1-X, y1-Y);
+         y1:=Y;
+         x1:=X;
 
-      Form1.FormResize(nil);
-  end;
+        Form1.FormResize(nil);
+    end;
 
 end;
 
@@ -117,6 +103,7 @@ procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
 rotateTriger := False;
+
 end;
 
 procedure TForm1.FormMouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -136,7 +123,8 @@ end;
 procedure TForm1.FormPaint(Sender: TObject);
 begin
 if not (log=nil) then
- CreateLog3DGL(log);
+ //CreateLog3DGL(log);
+ Create3DSection(log, 70);
 end;
 
 procedure TForm1.FormResize(Sender: TObject);
@@ -173,7 +161,6 @@ procedure TForm1.ListBox1Click(Sender: TObject);
           begin
              Memo1.Lines.Add(s);
           end;
-
           Form1.FormResize(nil);
 
       end;

@@ -4,7 +4,7 @@ interface
 
 uses
 Winapi.OpenGL, Winapi.Windows, Vcl.Forms, Vcl.Dialogs, UnitLog, System.SysUtils,
-System.Variants, System.Classes;
+System.Variants, System.Classes, System.Math;
 
   procedure SetPropertyGL(handle : HWND; BGCRed, BGCGreen, BGCBlue, BGCAlpha : Single);
   procedure DestroyGL();
@@ -14,7 +14,7 @@ System.Variants, System.Classes;
   procedure Zumm(multiplier : Integer);
   procedure SetLineMode();
   procedure SetFillMode();
-
+  procedure Create3DSection (log : TLog; n : Integer);
 
 var
  H: HWND;
@@ -23,6 +23,7 @@ var
  vLeft, vRight, vBottom, vTop, vNear, vFar, HWidth, HHeight, zumm1: Integer;
  angleX, angleY : Double;
  viewTriger : (Perspectiva,Orto) = Perspectiva;
+ quadObj : GLUquadricObj;
  implementation
    procedure SetDCPixcelFormat (hdc: HDC);
    var
@@ -51,12 +52,15 @@ var
      vBottom := -7000;
      vNear :=0;
      vFar := 60000;
-     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+     //glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
      glEnable (GL_LIGHTING);
      glEnable(GL_LIGHT0);
      glEnable(GL_LIGHT1);
      glEnable(GL_SCISSOR_TEST);
      glEnable(GL_COLOR_MATERIAL);
+     glEnable(GL_AUTO_NORMAL);
+     glEnable(GL_NORMALIZE);
+     glEnable(GL_SMOOTH);
 
    end;
 
@@ -92,7 +96,8 @@ var
   procedure CreateLog3DGL(log : TLog);
   var
   point, point1, point2, point3: TPointLog;
-  i, j, z, z2, a, xN, yN, zN: Integer;
+  i, j, z, z2, a: Integer;
+  c, xN, yN, zN : Double;
   begin
     glClear (GL_COLOR_BUFFER_BIT);
     for i:=0 to log.n-2 do
@@ -102,21 +107,28 @@ var
 
         z2 :=(TLogSection(log.sections[i+1]).z-a);
 
-
-       for j:=0 to TLogSection(log.sections[i]).m-2 do
+         for j:=0 to TLogSection(log.sections[i]).m-2 do
        begin
             point := TPointLog(TLogSection(log.sections[i]).points[j]);
             point1 := TPointLog(TLogSection(log.sections[i+1]).points[j]);
             point2 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
             point3 := TPointLog(TLogSection(log.sections[i]).points[j+1]);
-             xN := point.y*(z2-z2) + point1.y*(z2-z) + point2.y*(z-z2);
-             yN := z*(point1.x - point2.x) + z2*(point2.x-point.x) + z2*(point.x-point1.x);
-             zN := point.x*(point1.y - point2.y) + point1.x*(point2.y-point.y) + point2.x*(point.y-point1.y);
-            glBegin(GL_QUADS);
+//            xN := point2.y*(z2-z)+point1.y*(z2-z) + point.y*(z-z2); //нормаль x
+//            yN := z2*(point1.x-point.x) + z2*(point.x-point2.x) + z*(point2.x - point1.x);  //нормаль y
+//            zN := point2.x*(point1.y - point.y) + point1.x*(point.y-point2.y) + point.x*(point2.y-point1.y); //нормаль z
+//            c := Sqrt(xN*xN+yN*yN+zN*zN); //для нохождения еденичной нормкали
+            glBegin(GL_TRIANGLES);
             glColor3f(0.7,0.7,0.4);
-            glNormal3i(xN,yN,zN);
+            //glNormal3d((xN/c),(yN/c),(zN/c)); //еденичный вектор нормали
             glVertex3i(point.x, point.y, z);
             glVertex3i(point1.x, point1.y, z2);
+            glVertex3i(point2.x, point2.y, z2);
+            glEnd;
+
+            glBegin(GL_TRIANGLES);
+            glColor3f(0.7,0.7,0.4);
+            //glNormal3d((xN/c),(yN/c),(zN/c)); //еденичный вектор нормали
+            glVertex3i(point.x, point.y, z);
             glVertex3i(point2.x, point2.y, z2);
             glVertex3i(point3.x, point3.y, z);
             glEnd;
@@ -130,11 +142,18 @@ var
               xN := point.y*(z2-z2) + point1.y*(z2-z) + point2.y*(z-z2);
               yN := z*(point1.x - point2.x) + z2*(point2.x-point.x) + z2*(point.x-point1.x);
               zN := point.x*(point1.y - point2.y) + point1.x*(point2.y-point.y) + point2.x*(point.y-point1.y);
-              glBegin(GL_QUADS);
+              c := Sqrt(xN*xN+yN*yN+zN*zN);
+              glBegin(GL_TRIANGLES);
               glColor3f(0.7,0.7,0.4);
-              glNormal3i(xN,yN,zN);
+              //glNormal3d((xN/c),(yN/c),(zN/c));
               glVertex3i(point.x, point.y, z);
               glVertex3i(point1.x, point1.y, z2);
+              glVertex3i(point2.x, point2.y, z2);
+              glEnd;
+              glBegin(GL_TRIANGLES);
+              glColor3f(0.7,0.7,0.4);
+              //glNormal3d((xN/c),(yN/c),(zN/c)); //еденичный вектор нормали
+              glVertex3i(point.x, point.y, z);
               glVertex3i(point2.x, point2.y, z2);
               glVertex3i(point3.x, point3.y, z);
               glEnd;
@@ -142,7 +161,93 @@ var
 
         end;
      end;
+
      SwapBuffers(DC);
+  end;
+
+  procedure Create3DSection (log : TLog; n : Integer);
+  var
+  point, point1, point2, point3: TPointLog;
+  i, z1, z2, a: Integer;
+  c: Double;
+  v1,v2, vN : array [(x, y, z)] of Double;
+  begin
+
+  z1 := 0;
+  z2 :=TLogSection(log.sections[n+1]).z - TLogSection(log.sections[n]).z;
+  glClear (GL_COLOR_BUFFER_BIT);
+       for i:=0 to TLogSection(log.sections[n]).m-2 do
+       begin
+//       point.x :=1000;
+//       point.y := 1500;
+//       point1.x:= 4500;
+//       point1.y := 5000;
+//       point2.x := -100;
+//       point2.y:= -260;
+            point := TPointLog(TLogSection(log.sections[n]).points[i]);
+            point1 := TPointLog(TLogSection(log.sections[n+1]).points[i]);
+            point2 := TPointLog(TLogSection(log.sections[n+1]).points[i+1]);
+            point3 := TPointLog(TLogSection(log.sections[n]).points[i+1]);
+
+            v1[x] := point.x-point1.x;
+            v1[y] := point.y-point1.y;
+            v1[z] := z1-z2;
+            v2[x] := point2.x-point1.x;
+            v2[y] := point2.y-point1.y;
+            v2[z] := z2-z2;
+
+            vN[x] := v1[y]*v2[z]-v1[y]*v2[y];
+            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
+            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
+//
+            vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
+            vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
+            vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
+//
+            c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
+
+            glBegin(GL_TRIANGLES);
+            glColor3f(0.7,0.7,0.4);
+            glNormal3d((vN[x]/c),(vN[y]/c),(vN[z]/c)); //еденичный вектор нормали
+            glVertex3i(point.x, point.y, z1);
+            glVertex3i(point1.x, point1.y, z2);
+            glVertex3i(point2.x, point2.y, z2);
+            glEnd;
+
+            glBegin(GL_LINES);
+            glColor3f(1.0,1.0,1.0);
+            glVertex3d(point1.x, point1.y, z2);
+            glVertex3d((vN[x])*point1.x,(vN[y])*point1.y,(vN[z])*z2);
+            glEnd;
+
+            v1[x] := point.x-point3.x;
+            v1[y] := point.y-point3.y;
+            v1[z] := z1-z2;
+            v2[x] := point2.x-point3.x;
+            v2[y] := point2.y-point3.y;
+            v2[z] := z2-z1;
+
+            vN[x] := v1[y]*v2[z]-v1[y]*v2[y];
+            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
+            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
+
+//          vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
+//          vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
+//          vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
+
+            c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
+
+            glBegin(GL_TRIANGLES);
+            glColor3f(0.7,0.7,0.4);
+            //glNormal3d((vN[x]/c),(vN[y]/c),(vN[z]/c)); //еденичный вектор нормали
+            glVertex3i(point.x, point.y, z1);
+            glVertex3i(point2.x, point2.y, z2);
+            glVertex3i(point3.x, point3.y, z1);
+            glEnd;
+
+//
+  end;
+  SwapBuffers(DC);
   end;
 
   procedure FormResizeGL(Width, Height,  xLeft1, yTop1 : Integer);
@@ -156,12 +261,10 @@ var
                 Width / Height, // угол видимости в направлении оси X
                 0,            // расстояние от наблюдателя до ближней плоскости отсечения
                 60000);
-
-    if zumm1 >0 then
-    gluLookAt (0, zumm1+3000, zumm1*2, 0.0, 0.0, 0.0, 0, 1, 0);
-    glTranslatef(0.0, 0.0, -9000.0);   // перенос объекта - ось Z
+    gluLookAt (0, zumm1+3000, zumm1*3, 0.0, 0.0, 0.0, 0, 1, 0);
+    glTranslatef(0.0, 0.0, 0.0);   // перенос объекта - ось Z
     glRotated(angleX, 0.0, 1.0,0.0);
-    //glRotated(angleY, 1.0, 0.0,0.0);
+    glRotated(angleY, 1.0, 0.0,0.0);
     InvalidateRect(H, nil, False);
   end;
 end.
