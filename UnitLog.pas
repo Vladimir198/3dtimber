@@ -28,6 +28,8 @@ uses
      curveDirection, sbeg, sbegCom, maxX, maxY, minX, minY : SmallInt;
      arrayReserv: array[0..83] of Byte;
      sections: TList;
+     arrayIntPolig : array[0..3] of array of Integer;
+     procedure Get3dPoligon ();
      function GetProertyList(): TStringList;
      constructor Create(path: string);
 
@@ -148,6 +150,30 @@ implementation
        end;
 
    end;
+
+   procedure TLog.Get3dPoligon ();
+   var
+  point, point1, point2, point3: TPointLog;
+  i, j, z1, z2, a: Integer;
+  c, xN, yN, zN : Double;
+  v1,v2, vN : array [(x, y, z)] of Double;
+  begin
+
+    for i:=0 to Self.n-2 do
+     begin
+        a:= Round(Self.maxZ/2);
+        z1:=((TLogSection(Self.sections[i]).z)-a);
+
+        z2 :=(TLogSection(Self.sections[i+1]).z-a);
+
+         for j:=0 to TLogSection(Self.sections[i]).m-2 do
+       begin
+
+       end;
+
+        end;
+     end;
+
 
   function TLog.GetProertyList(): TStringList;
   var
