@@ -80,6 +80,8 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
 begin
  mouse.X := X;
  mouse.Y := Y;
+ y1:=Y;
+ x1:=X;
  rotateTriger := True;
 end;
 
@@ -124,7 +126,7 @@ procedure TForm1.FormPaint(Sender: TObject);
 begin
 if not (log=nil) then
  //CreateLog3DGL(log);
- Create3DSection(log, 70);
+ Create3DSection(log, 78);
 end;
 
 procedure TForm1.FormResize(Sender: TObject);
