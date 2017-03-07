@@ -124,19 +124,19 @@ end;
 
 procedure TForm1.FormPaint(Sender: TObject);
 begin
+CreateTriangle();
 if not (log=nil) then
  //CreateLog3DGL(log);
- Create3DSection(log, 78);
+ //Create3DSection(log, 78);
 end;
 
 procedure TForm1.FormResize(Sender: TObject);
 begin
-if not(log = nil) then
-begin
+
   FormResizeGL(ClientWidth - PageControl1.Left, ClientHeight- PageControl1.Height , PageControl1.Left, ClientHeight - PageControl1.Top);
   Form1.FormPaint(nil);
   Form1.Color := cl3DLight;
-end;
+
 
 end;
 

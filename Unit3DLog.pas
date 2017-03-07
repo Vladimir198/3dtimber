@@ -15,7 +15,7 @@ System.Variants, System.Classes, System.Math;
   procedure SetLineMode();
   procedure SetFillMode();
   procedure Create3DSection (log : TLog; n : Integer);
-
+  procedure CreateTriangle ();
 var
  H: HWND;
  DC: HDC;
@@ -40,7 +40,7 @@ var
    const
       LightAmbient: array [0..3] of GLfloat = (0.5, 0.5, 0.5, 1.0);  // Ambient Light Values
       LightDiffuse: array [0..3] of GLfloat = (0.5, 0.5, 0.5, 1.0);  // Diffuse Light Values
-      LightPosition: array [0..3] of GLfloat = (0{-100.0}, 50, 100.0, 1.0);
+      LightPosition: array [0..3] of GLfloat = (100, 100, 100.0, 1.0);
    begin
      zumm1:=16000;
      H := handle;
@@ -58,11 +58,10 @@ var
      vFar := 60000;
 
      glEnable(GL_SCISSOR_TEST);
-     glEnable(GL_COLOR_MATERIAL);
-     //glEnable(GL_AUTO_NORMAL);
-     //glEnable(GL_NORMALIZE);
-     glEnable(GL_SMOOTH);
 
+     //glEnable(GL_AUTO_NORMAL);
+     glEnable(GL_SMOOTH);
+     glEnable(GL_COLOR_MATERIAL);
       glEnable(GL_LIGHTING);
       glLightfv(GL_LIGHT0, GL_AMBIENT, @LightAmbient[0]);				// Setup The Ambient Light
       glLightfv(GL_LIGHT0, GL_DIFFUSE, @LightDiffuse[0]);				// Setup The Diffuse Light
@@ -286,8 +285,8 @@ var
              glVertex3d(0, 0, 0);
              glVertex3d(0, 0, 1000);
             //glColor3f(1.0,1.0,1.0);
-            glVertex3d(point1.x, point1.y, z2);
-            glVertex3d(((vN[x])+point1.x),((vN[y])+point1.y),((vN[z])+z2));
+           //glVertex3d(point1.x, point1.y, z2);
+           // glVertex3d(((vN[x])+point1.x),((vN[y])+point1.y),((vN[z])+z2));
             glEnd;
 
 //            v1[x] := point.x-point3.x;
@@ -324,7 +323,72 @@ var
   SwapBuffers(DC);
   end;
 
-  procedure FormResizeGL(Width, Height,  xLeft1, yTop1 : Integer);
+  procedure CreateTriangle ();
+
+     var
+  point, point1, point2, point3: TPointLog;
+  i, z1, z2, a: Integer;
+  c: Double;
+  v1,v2, vN : array [(x, y, z)] of Double;
+  begin
+  z1 := 0;
+  z2 := 0;
+  glClear (GL_COLOR_BUFFER_BIT);
+
+              point := TPointLog.Create;
+              point1 := TPointLog.Create;
+              point2 :=TPointLog.Create;
+
+             point.x := 100;
+             point.y := 0;
+             point1.x := 0;
+             point1.y := 100;
+             point2.x := 0;
+             point2.y:=0;
+
+            v1[x] := point.x-point1.x;
+            v1[y] := point.y-point1.y;
+            v1[z] := z1-z2;
+
+            v2[x] := point2.x-point1.x;
+            v2[y] := point2.y-point1.y;
+            v2[z] := z2-z2;
+
+//            vN[x] := v1[y]*v2[z]-v1[z]*v2[y];
+//            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
+//            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
+//
+            vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
+            vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
+            vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
+//
+            c :=Sqrt((vN[x]*vN[x])+(vN[y]*vN[y]+(vN[z]*vN[z]))); //для нохождения еденичной нормали
+
+            glBegin(GL_TRIANGLES);
+            glColor3f(0.7,0.7,0.4);
+            glNormal3d(((vN[x])/c),((vN[y])/c),((vN[z])/c)); //еденичный вектор нормали
+            glVertex3d(point1.x, point1.y, z2);
+            glVertex3d(point2.x, point2.y, z2);
+            glVertex3d(point.x, point.y, z1);
+            glEnd;
+
+            glBegin(GL_LINES);
+             glVertex3d(0, 0, 0);
+             glVertex3d(10000, 0, 0);
+             glVertex3d(0, 0, 0);
+             glVertex3d(0, 10000, 0);
+             glVertex3d(0, 0, 0);
+             glVertex3d(0, 0, 10000);
+            glColor3f(1.0,1.0,1.0);
+            glVertex3d(point1.x, point1.y, z2);
+            glVertex3d(((vN[x])/c)+point1.x,((vN[y])/c)+point1.y,((vN[z])/c)+z2);
+            glEnd;
+
+//
+  SwapBuffers(DC);
+  end;
+
+   procedure FormResizeGL(Width, Height,  xLeft1, yTop1 : Integer);
   begin
     HWidth := Width;
     HHeight := Height;
@@ -337,7 +401,7 @@ var
                 10,            // расстояние от наблюдателя до ближней плоскости отсечения
                 60000);
     gluLookAt (0, zumm1+3000, zumm1+3000, 0.0, 0.0, 0.0, 0, 1, 0);
-    glTranslatef(0.0, 0.0, 0.0);   // перенос объекта - ось Z
+    //glTranslatef(0.0, 0.0, 0.0);   // перенос объекта - ось Z
     glRotated(angleX, 0.0, 1.0,0.0);
     glRotated(angleY, 1.0, 0.0,0.0);
     InvalidateRect(H, nil, False);
