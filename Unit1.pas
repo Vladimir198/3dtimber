@@ -78,8 +78,6 @@ end;
 procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
- mouse.X := X;
- mouse.Y := Y;
  y1:=Y;
  x1:=X;
  rotateTriger := True;
@@ -111,23 +109,25 @@ end;
 procedure TForm1.FormMouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
- Zumm(-200);
+ Zumm(-100);
  Form1.FormResize(nil);
 end;
 
 procedure TForm1.FormMouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
- Zumm(200);
+ Zumm(100);
  Form1.FormResize(nil);
 end;
 
 procedure TForm1.FormPaint(Sender: TObject);
 begin
-CreateTriangle();
-if not (log=nil) then
- //CreateLog3DGL(log);
- //Create3DSection(log, 78);
+  //CreateTriangle();
+  if not (log=nil) then
+  begin
+   CreateLog3DGL(log);
+    //Create3DSection(log, 78);
+  end;
 end;
 
 procedure TForm1.FormResize(Sender: TObject);
