@@ -109,14 +109,14 @@ end;
 procedure TForm1.FormMouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
- Zumm(-100);
+ Zumm(-200);
  Form1.FormResize(nil);
 end;
 
 procedure TForm1.FormMouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
- Zumm(100);
+ Zumm(200);
  Form1.FormResize(nil);
 end;
 

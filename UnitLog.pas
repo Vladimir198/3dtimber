@@ -11,7 +11,12 @@ uses
    y:SmallInt;
    z:Integer;
  end;
-
+ TNormalV = class
+   public
+   x:Double;
+   y:Double;
+   z:Double;
+ end;
  TLogSection = class
  public
    z:Integer;
@@ -22,16 +27,18 @@ uses
  TLog = class
      private
      procedure SetNormal();
+     procedure SetPoint3D();
      public
      version, pointInSection, id, d1, dCentr, d2, dTop, lenghtLog, flag: Word;
-     n, minZ, maxZ: Integer;
+     n: Integer;
      date: TDateTime;
      curve, reserv: Byte;
      Vf, impulsPrice: Single;
-     curveDirection, sbeg, sbegCom, maxX, maxY, minX, minY : SmallInt;
+     curveDirection, sbeg, sbegCom : SmallInt;
+     maxX, maxY, minX, minY, minZ, maxZ :Double;
      arrayReserv: array[0..83] of Byte;
-     sections: TList;
-     normalArray : array[0..2] of array of Double;
+     sections, pointList3D, normalList3D: TList;
+
      function GetProertyList(): TStringList;
      constructor Create(path: string);
 
@@ -146,6 +153,7 @@ implementation
 
        end;
        CloseFile(f);
+       SetPoint3D();
        SetNormal();
        except
        on E : Exception do
@@ -180,125 +188,105 @@ implementation
    Result:= propertyList;
   end;
 
+  procedure TLog.SetPoint3D();
+  var
+  i, j, z1, z2, a : Integer;
+
+  point : TPointLog;
+  begin
+    Self.pointList3D := TList.Create;
+    a:= Round(Self.maxZ/2);
+    for i:=0 to Self.n-2 do
+    begin
+        z1:=(TLogSection(Self.sections[i]).z-a);
+        z2 :=(TLogSection(Self.sections[i+1]).z-a);
+
+        for j:=0 to TLogSection(Self.sections[i]).m-2 do
+        begin
+            point := TPointLog(TLogSection(Self.sections[i+1]).points[j]);
+            point.z :=z2;
+            Self.pointList3D.Add(point);
+            point := TPointLog(TLogSection(Self.sections[i]).points[j]);
+            point.z :=z1;
+            Self.pointList3D.Add(point);
+            point := TPointLog(TLogSection(Self.sections[i+1]).points[j+1]);
+            point.z :=z2;
+            Self.pointList3D.Add(point);
+
+            point := TPointLog(TLogSection(Self.sections[i]).points[j+1]);
+            point.z :=z1;
+            Self.pointList3D.Add(point);
+            point := TPointLog(TLogSection(Self.sections[i+1]).points[j+1]);
+            point.z :=z2;
+            Self.pointList3D.Add(point);
+            point := TPointLog(TLogSection(Self.sections[i]).points[j]);
+            point.z :=z1;
+            Self.pointList3D.Add(point);
+
+            if j= TLogSection(Self.sections[i]).m-2 then
+            begin
+              point := TPointLog(TLogSection(Self.sections[i+1]).points[j+1]);
+              point.z :=z2;
+              Self.pointList3D.Add(point);
+              point := TPointLog(TLogSection(Self.sections[i]).points[j+1]);
+              point.z :=z1;
+              Self.pointList3D.Add(point);
+              point := TPointLog(TLogSection(Self.sections[i+1]).points[0]);
+              point.z :=z2;
+              Self.pointList3D.Add(point);
+
+              point := TPointLog(TLogSection(Self.sections[i]).points[0]);
+              point.z :=z1;
+              Self.pointList3D.Add(point);
+              point := TPointLog(TLogSection(Self.sections[i+1]).points[0]);
+              point.z :=z2;
+              Self.pointList3D.Add(point);
+              point := TPointLog(TLogSection(Self.sections[i]).points[j+1]);
+              point.z :=z1;
+              Self.pointList3D.Add(point);
+            end;
+        end;
+      end;
+  end;
+
   procedure TLog.SetNormal();
   var
-  point, point1, point2, point3: TPointLog;
-  i, j, n : Integer;
-  c, xN, yN, zN : Double;
+  point, point1, point2: TPointLog;
+  normalV : TNormalV;
+  counter: Integer;
+  c : Double;
   v1,v2, vN : array [(x, y, z)] of Double;
   begin
-//    n:=0;
-//    for i:=0 to Self.n-2 do
-//     begin
-//        for j:=0 to TLogSection(Self.sections[i]).m-2 do
-//       begin
-//            point := TPointLog(TLogSection(Self.sections[i]).points[j]);
-//            point1 := TPointLog(TLogSection(Self.sections[i+1]).points[j]);
-//            point2 := TPointLog(TLogSection(Self.sections[i+1]).points[j+1]);
-//            point3 := TPointLog(TLogSection(Self.sections[i]).points[j+1]);
-//
-//            v1[x] := point.x-point1.x;
-//            v1[y] := point.y-point1.y;
-//            v1[z] := point.z -point1.z;
-//
-//            v2[x] := point2.x-point1.x;
-//            v2[y] := point2.y-point1.y;
-//            v2[z] := point2.z -point1.z;
-//
-////            vN[x] := v1[y]*v2[z]-v1[y]*v2[y];
-////            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
-////            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
-////
-//            vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
-//            vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
-//            vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
-////
-//            c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
-//
-//            Self.normalArray[n][0] := vN[x]/c;
-//            Self.normalArray[n][1] := vN[y]/c;
-//            Self.normalArray[n][2] := vN[z]/c;
-//            n:=n+1;
-//
-//            v1[x] := point.x-point3.x;
-//            v1[y] := point.y-point3.y;
-//            v1[z] := point.z-point3.z;
-//
-//            v2[x] := point2.x-point3.x;
-//            v2[y] := point2.y-point3.y;
-//            v2[z] := point2.z-point3.z;
-//
-//            vN[x] := v1[y]*v2[z]-v1[y]*v2[y];
-//            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
-//            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
-//
-////            vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
-////            vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
-////            vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
-//
-//            c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
-//            Self.normalArray[n,0] := vN[x]/c;
-//            Self.normalArray[n,1] := vN[y]/c;
-//            Self.normalArray[n,2] := vN[z]/c;
-//            n:=n+1;
-//
-//            if j = TLogSection(Self.sections[i]).m-2 then
-//            begin
-//              point := TPointLog(TLogSection(Self.sections[i]).points[j+1]);
-//              point1 := TPointLog(TLogSection(Self.sections[i+1]).points[j+1]);
-//              point2 := TPointLog(TLogSection(Self.sections[i+1]).points[0]);
-//              point3 := TPointLog(TLogSection(Self.sections[i]).points[0]);
-//
-//              v1[x] := point.x-point1.x;
-//              v1[y] := point.y-point1.y;
-//              v1[z] := point.z -point1.z;
-//
-//              v2[x] := point2.x-point1.x;
-//              v2[y] := point2.y-point1.y;
-//              v2[z] := point2.z -point1.z;
-//
-//  //            vN[x] := v1[y]*v2[z]-v1[y]*v2[y];
-//  //            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
-//  //            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
-//  //
-//              vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
-//              vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
-//              vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
-//  //
-//              c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
-//
-//              Self.normalArray[n,0] := vN[x]/c;
-//              Self.normalArray[n,1] := vN[y]/c;
-//              Self.normalArray[n,2] := vN[z]/c;
-//              n:=n+1;
-//
-//              v1[x] := point.x-point3.x;
-//              v1[y] := point.y-point3.y;
-//              v1[z] := point.z-point3.z;
-//
-//              v2[x] := point2.x-point3.x;
-//              v2[y] := point2.y-point3.y;
-//              v2[z] := point2.z-point3.z;
-//
-//              vN[x] := v1[y]*v2[z]-v1[y]*v2[y];
-//              vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
-//              vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
-//
-//  //            vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
-//  //            vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
-//  //            vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
-//
-//              c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
-//              Self.normalArray[n,0] := vN[x]/c;
-//              Self.normalArray[n,1] := vN[y]/c;
-//              Self.normalArray[n,2] := vN[z]/c;
-//              n:=n+1;
-//
-//            end;
-//
-//        end;
-//     end;
+    Self.normalList3D := TList.Create();
+     counter :=0;
+         while counter < Self.pointList3D.Count do
+       begin
+            normalV := TNormalV.Create();
+            point := Self.pointList3D[counter];
+            counter:= counter+1;
+            point1 := Self.pointList3D[counter];
+            counter:= counter+1;
+            point2 := Self.pointList3D[counter];
+            counter:= counter+1;
 
-  end;
+            v1[x] := point1.x-point.x;
+            v1[y] := point1.y-point.y;
+            v1[z] := point1.z-point.z;
+
+            v2[x] := point2.x-point.x;
+            v2[y] := point2.y-point.y;
+            v2[z] := point2.z-point.z;
+
+            vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
+            vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
+            vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
+
+            c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
+            normalV.x:= vN[x]/c;
+            normalV.y:= vN[y]/c;
+            normalV.z:= vN[z]/c;
+            Self.normalList3D.Add(normalV);
+        end;
+     end;
 
 end.
