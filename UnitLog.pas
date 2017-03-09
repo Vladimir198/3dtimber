@@ -195,54 +195,54 @@ implementation
   point : TPointLog;
   begin
     Self.pointList3D := TList.Create;
-    a:= Round(Self.maxZ/2);
+    //a:= Round(Self.maxZ/2);
     for i:=0 to Self.n-2 do
     begin
-        z1:=(TLogSection(Self.sections[i]).z-a);
-        z2 :=(TLogSection(Self.sections[i+1]).z-a);
+        //z1:=(TLogSection(Self.sections[i]).z-a);
+        //z2 :=(TLogSection(Self.sections[i+1]).z-a);
 
         for j:=0 to TLogSection(Self.sections[i]).m-2 do
         begin
             point := TPointLog(TLogSection(Self.sections[i+1]).points[j]);
-            point.z :=z2;
+            point.z := TLogSection(Self.sections[i+1]).z;
             Self.pointList3D.Add(point);
             point := TPointLog(TLogSection(Self.sections[i]).points[j]);
-            point.z :=z1;
+            point.z :=TLogSection(Self.sections[i]).z;
             Self.pointList3D.Add(point);
             point := TPointLog(TLogSection(Self.sections[i+1]).points[j+1]);
-            point.z :=z2;
+            point.z :=TLogSection(Self.sections[i+1]).z;;
             Self.pointList3D.Add(point);
 
             point := TPointLog(TLogSection(Self.sections[i]).points[j+1]);
-            point.z :=z1;
+            point.z :=TLogSection(Self.sections[i]).z;;
             Self.pointList3D.Add(point);
             point := TPointLog(TLogSection(Self.sections[i+1]).points[j+1]);
-            point.z :=z2;
+            point.z :=TLogSection(Self.sections[i+1]).z;;
             Self.pointList3D.Add(point);
             point := TPointLog(TLogSection(Self.sections[i]).points[j]);
-            point.z :=z1;
+            point.z :=TLogSection(Self.sections[i]).z;;
             Self.pointList3D.Add(point);
 
             if j= TLogSection(Self.sections[i]).m-2 then
             begin
               point := TPointLog(TLogSection(Self.sections[i+1]).points[j+1]);
-              point.z :=z2;
+              point.z :=TLogSection(Self.sections[i+1]).z;;
               Self.pointList3D.Add(point);
               point := TPointLog(TLogSection(Self.sections[i]).points[j+1]);
-              point.z :=z1;
+              point.z :=TLogSection(Self.sections[i]).z;;
               Self.pointList3D.Add(point);
               point := TPointLog(TLogSection(Self.sections[i+1]).points[0]);
-              point.z :=z2;
+              point.z :=TLogSection(Self.sections[i+1]).z;;
               Self.pointList3D.Add(point);
 
               point := TPointLog(TLogSection(Self.sections[i]).points[0]);
-              point.z :=z1;
+              point.z :=TLogSection(Self.sections[i]).z;;
               Self.pointList3D.Add(point);
               point := TPointLog(TLogSection(Self.sections[i+1]).points[0]);
-              point.z :=z2;
+              point.z := TLogSection(Self.sections[i+1]).z;;
               Self.pointList3D.Add(point);
               point := TPointLog(TLogSection(Self.sections[i]).points[j+1]);
-              point.z :=z1;
+              point.z :=TLogSection(Self.sections[i]).z;;
               Self.pointList3D.Add(point);
             end;
         end;
@@ -277,9 +277,9 @@ implementation
             v2[y] := point2.y-point.y;
             v2[z] := point2.z-point.z;
 
-            vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
-            vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
-            vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
+            vN[x] := v1[y]*v2[z]-v1[z]*v2[y];
+            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
+            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
 
             c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
             normalV.x:= vN[x]/c;

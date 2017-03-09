@@ -38,6 +38,7 @@
     procedure btnLineClick(Sender: TObject);
     procedure btnFillClick(Sender: TObject);
     procedure FormPaint(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
 
 
     private
@@ -71,8 +72,13 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
- SetPropertyGL( Handle, 0.5, 0.5, 0.6, 1.0);
+
  rotateTriger := False;
+end;
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+DestroyGL();
 end;
 
 procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -85,25 +91,36 @@ end;
 
 procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
-
+   var
+   deltaX, deltaY :Integer;
 begin
+    deltaX := x1-X;
+    deltaY := y1-Y;
 
     if rotateTriger then
     begin
-          RotateLog(x1-X, y1-Y);
-         y1:=Y;
-         x1:=X;
-
-        Form1.FormResize(nil);
+       if ssCtrl in Shift then begin
+       Translated(0, 0, deltaY*100 );
+      end
+      else
+      If ssShift in Shift then
+      begin
+       Translated(deltaX*100, deltaY*100,0);
+      end
+      else
+      begin
+        RotateLog(deltaX, deltaY);
+       end;
+      y1:=Y;
+      x1:=X;
+      Form1.FormResize(nil);
     end;
-
 end;
 
 procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-rotateTriger := False;
-
+  rotateTriger := False;
 end;
 
 procedure TForm1.FormMouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -122,22 +139,20 @@ end;
 
 procedure TForm1.FormPaint(Sender: TObject);
 begin
-  //CreateTriangle();
   if not (log=nil) then
   begin
    CreateLog3DGL(log);
-    //Create3DSection(log, 78);
   end;
 end;
 
 procedure TForm1.FormResize(Sender: TObject);
 begin
-
-  FormResizeGL(ClientWidth - PageControl1.Left, ClientHeight- PageControl1.Height , PageControl1.Left, ClientHeight - PageControl1.Top);
-  Form1.FormPaint(nil);
-  Form1.Color := cl3DLight;
-
-
+  if not (log=nil) then
+  begin
+    FormResizeGL(ClientWidth - PageControl1.Left, ClientHeight- PageControl1.Height , PageControl1.Left, ClientHeight - PageControl1.Top);
+    Form1.FormPaint(nil);
+    Form1.Color := cl3DLight;
+  end;
 end;
 
 procedure TForm1.ListBox1Click(Sender: TObject);
@@ -163,6 +178,7 @@ procedure TForm1.ListBox1Click(Sender: TObject);
           begin
              Memo1.Lines.Add(s);
           end;
+          SetPropertyGL( Handle, 0.5, 0.5, 0.6, 1.0, log);
           Form1.FormResize(nil);
 
       end;
