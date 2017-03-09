@@ -99,125 +99,25 @@ var
 
   procedure CreateLog3DGL(log : TLog);
   var
-  point, point1, point2, point3: TPointLog;
-  i, j, z1, z2, a: Integer;
-  c : Double;
-  v1,v2, vN : array [(x, y, z)] of Double;
+  counter, normalCounter: Integer;
   begin
     glClear (GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT );
-    for i:=0 to log.n-2 do
+    counter:=0;
+    normalCounter :=0;
+     while counter < log.pointList3D.Count do
      begin
-        a:= Round(log.maxZ/2);
-        z1:=((TLogSection(log.sections[i]).z)-a);
-
-        z2 :=(TLogSection(log.sections[i+1]).z-a);
-
-         for j:=0 to TLogSection(log.sections[i]).m-2 do
-       begin
-            point := TPointLog(TLogSection(log.sections[i]).points[j]);
-            point1 := TPointLog(TLogSection(log.sections[i+1]).points[j]);
-            point2 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
-            point3 := TPointLog(TLogSection(log.sections[i]).points[j+1]);
-
-            v1[x] := point.x-point1.x;
-            v1[y] := point.y-point1.y;
-            v1[z] := point.z-point1.z;
-
-            v2[x] := point2.x-point1.x;
-            v2[y] := point2.y-point1.y;
-            v2[z] := point2.z-point1.z;
-
-            vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
-            vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
-            vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
-
-            c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
-
-            glBegin(GL_TRIANGLES);
-            glColor3f(0.7,0.7,0.4);
-            glNormal3d((vN[x]/c),(vN[y]/c),(vN[z]/c)); //еденичный вектор нормали
-            glVertex3i(point1.x, point1.y, z2);
-            glVertex3i(point.x, point.y, z1);
-            glVertex3i(point2.x, point2.y, z2);
-            glEnd;
-
-            v1[x] := point.x-point3.x;
-            v1[y] := point.y-point3.y;
-            v1[z] := point.z-point3.z;
-
-            v2[x] := point2.x-point3.x;
-            v2[y] := point2.y-point3.y;
-            v2[z] := point2.z-point3.z;
-
-            vN[x] := v1[y]*v2[z]-v1[z]*v2[y];
-            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
-            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
-
-            c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
-
-            glBegin(GL_TRIANGLES);
-            glColor3f(0.7,0.7,0.4);
-            glNormal3d((vN[x]/c),(vN[y]/c),(vN[z]/c)); //еденичный вектор нормали
-            glVertex3i(point3.x, point3.y, z1);
-            glVertex3i(point2.x, point2.y, z2);
-            glVertex3i(point.x, point.y, z1);
-            glEnd;
-
-            if j = TLogSection(log.sections[i]).m-2 then
-            begin
-              point := TPointLog(TLogSection(log.sections[i]).points[j+1]);
-              point1 := TPointLog(TLogSection(log.sections[i+1]).points[j+1]);
-              point2 := TPointLog(TLogSection(log.sections[i+1]).points[0]);
-              point3 := TPointLog(TLogSection(log.sections[i]).points[0]);
-
-              v1[x] := point.x-point1.x;
-              v1[y] := point.y-point1.y;
-              v1[z] := z1-z2;
-
-              v2[x] := point2.x-point1.x;
-              v2[y] := point2.y-point1.y;
-              v2[z] := z2-z2;
-
-              vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
-              vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
-              vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
-
-              c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
-
-              glBegin(GL_TRIANGLES);
-              glColor3f(0.7,0.7,0.4);
-              glNormal3d((vN[x]/c),(vN[y]/c),(vN[z]/c)); //еденичный вектор нормали
-              glVertex3i(point1.x, point1.y, z2);
-              glVertex3i(point.x, point.y, z1);
-              glVertex3i(point2.x, point2.y, z2);
-              glEnd;
-
-              v1[x] := point.x-point3.x;
-              v1[y] := point.y-point3.y;
-              v1[z] := z1-z2;
-
-              v2[x] := point2.x-point3.x;
-              v2[y] := point2.y-point3.y;
-              v2[z] := z2-z1;
-
-              vN[x] := v1[y]*v2[z]-v1[y]*v2[y];
-              vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
-              vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
-
-              c := Sqrt((vN[x]*vN[x])+(vN[y]*vN[y])+(vN[z]*vN[z])); //для нохождения еденичной нормали
-
-              glBegin(GL_TRIANGLES);
-              glColor3f(0.7,0.7,0.4);
-              glNormal3d((vN[x]/c),(vN[y]/c),(vN[z]/c)); //еденичный вектор нормали
-              glVertex3i(point.x, point.y, z1);
-              glVertex3i(point2.x, point2.y, z2);
-              glVertex3i(point3.x, point3.y, z1);
-              glEnd;
-            end;
-
-        end;
+      glBegin(GL_TRIANGLES);
+      glColor3f(0.7,0.7,0.4);
+      glNormal3d(TNormalV(log.normalList3D[normalCounter]).x, TNormalV(log.normalList3D[normalCounter]).y, TNormalV(log.normalList3D[normalCounter]).z);
+      normalCounter:= normalCounter+1;
+      glVertex3i(TPointLog(log.pointList3D[counter]).x, TPointLog(log.pointList3D[counter]).y, TPointLog(log.pointList3D[counter]).z);
+      counter :=counter+1;
+      glVertex3i(TPointLog(log.pointList3D[counter]).x, TPointLog(log.pointList3D[counter]).y, TPointLog(log.pointList3D[counter]).z);
+      counter :=counter+1;
+      glVertex3i(TPointLog(log.pointList3D[counter]).x, TPointLog(log.pointList3D[counter]).y, TPointLog(log.pointList3D[counter]).z);
+      counter :=counter+1;
+      glEnd;
      end;
-
      SwapBuffers(DC);
   end;
 
@@ -253,14 +153,11 @@ var
             v2[y] := point2.y-point1.y;
             v2[z] := z2-z2;
 
-//            vN[x] := v1[y]*v2[z]-v1[z]*v2[y];
-//            vN[y] := v1[z]*v2[x]-v1[x]*v2[z];
-//            vN[z] := v1[x]*v2[y]-v1[y]*v2[x];
 
             vN[x] := v1[z]*v2[y]-v1[y]*v2[z];
             vN[y] := v1[x]*v2[z]-v1[z]*v2[x];
             vN[z] := v1[y]*v2[x]-v1[x]*v2[y];
-//
+
             c :=Sqrt((vN[x]*vN[x])+(vN[y]*vN[y]+(vN[z]*vN[z]))); //для нохождения еденичной нормали
             glClear (GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT);
 
@@ -297,22 +194,6 @@ var
             glVertex3d(point.x, point.y, z1);
             glEnd;
             glPopMatrix;
-
-
-
-
-//            glBegin(GL_LINES);
-//            glColor3f(1.0,1.0,1.0);
-//             glVertex3d(0, 0, 0);
-//             glVertex3d(10000, 0, 0);
-//             glVertex3d(0, 0, 0);
-//             glVertex3d(0, 10000, 0);
-//             glVertex3d(0, 0, 0);
-//             glVertex3d(0, 0, 10000);
-//            glVertex3d(point1.x, point1.y, z2);
-//            glVertex3d(((vN[x])/c)+point1.x,((vN[y])/c)+point1.y,((vN[z])/c)+z2);
-//            glEnd;
-//
   SwapBuffers(DC);
   end;
 
@@ -323,7 +204,6 @@ var
     glViewport(xLeft1, yTop1, Width, Height);
     glScissor(xLeft1, yTop1, Width, Height);
     glLoadIdentity;
-
     gluPerspective(30,           // угол видимости в направлении оси Y
                 Width / Height, // угол видимости в направлении оси X
                 1,            // расстояние от наблюдателя до ближней плоскости отсечения
